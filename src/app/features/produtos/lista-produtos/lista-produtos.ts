@@ -66,8 +66,20 @@ constructor(){
 }
 //! método para criar um estado de seleção com sinal string | null
 produtoSelecionado = signal <string | null>(null);
-
+//!método para criar um estado para carrinho com signal 20/07
+carrinho = signal <{nome: string; preco: number}[]>([]);
+adicionarAoCarrinho(produto:{nome: string; preco: number}){
+  this.carrinho.update(listaAtual => [...listaAtual, produto]
+  );
 }
+//!método para calcular a quantidade (() => this.produto().length); 20/07
+quantidadeCarrinho = computed(() => this.carrinho().length);
+//método para calcular o valor total dos itens do carrinho 20/07, o mesmo método foi usado na linha 38
+totalCarrinho = computed (() =>{
+return this.carrinho().reduce((total, item) =>
+total + item.preco,0)});
+}
+
 
 
 

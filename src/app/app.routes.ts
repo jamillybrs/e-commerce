@@ -1,24 +1,27 @@
-import { Routes } from '@angular/router';  
-import { ListaProdutos } from './features/produtos/lista-produtos/lista-produtos';
-import { Carrinho } from './features/carrinho/carrinho/carrinho';
-import { Home } from './features/home/home/home';
+import { Routes } from "@angular/router";
+import { authGuard } from "./core/auth.guard";
 export const routes: Routes = [
     {
-        path:'',
-        component: Home,
+        path:'', //router para raiz lacalhost:4200/
+        loadComponent: () =>
+            import('./features/home/home/home')     //o import esta sendo feito dentro da função 22/07
+        .then((m) => m.Home),
     },
     {
         path:'produtos',
-        component: ListaProdutos,
+        loadComponent: () =>
+            import('./features/produtos/lista-produtos/lista-produtos')
+        .then((m) => m.ListaProdutos),
     },
     {
-        path: 'carrinho',
-        component: Carrinho,
+        path:'carrinho',
+        canActivate:[authGuard],
+        loadComponent: () =>
+            import('./features/carrinho/carrinho/carrinho')
+        .then((m) => m.Carrinho),
     },
     {
         path:'**',
         redirectTo:'',
-    }
-
-
+    },
 ];

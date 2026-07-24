@@ -5,6 +5,7 @@ import { computed } from '@angular/core';
 import { PrecoFormatadoPipe } from '../../../shared/pipes/preco-formatado-pipe';
 import { effect } from '@angular/core'; //adicionado 17/07
 import { UpperCasePipe } from '@angular/common'; //adicionado 17/07
+import { HttpClient } from '@angular/common/http'; // adicionado 23/07
 
 @Component({
   selector: 'app-lista-produtos',
@@ -14,11 +15,9 @@ import { UpperCasePipe } from '@angular/common'; //adicionado 17/07
 })
 //lista de produtos 16/07-array lista de dados
 export class ListaProdutos {
-  produtos = signal([
-    {nome:'Teclado Gamer', preco:229.99},
-    {nome:'Mouse Gamer', preco:129.99},
-    {nome:'Monitor Gamer', preco:2000}
-  ]);
+  
+  produtos = signal<{nome: string; preco: number}[]>([]);
+  carregando =signal (true);
   //função para produtos selecionados
   exibirProduto(nome: string){
     console.log('Produto Selecionado: ', nome);
@@ -51,7 +50,31 @@ substituirProdutos(){
   ]);
 }
 //! método para monitorar alteração em tempo real usando effect()
-constructor(){
+// método HTTP CLIENT (API)
+carregarProdutos(){
+
+  this.carregando.set(true);
+  this.http.get<{title: string; price: number}[]>
+  ('https://fakestoreapi.com/products').subscribe({
+    next: (dados) => {
+      const produtosFormatados = dados.map (p =>({
+        nome: p.title,
+        preco: p.price,
+      }));
+      this.produtos.set(produtosFormatados);
+      this.carregando.set(false);
+    },
+    error: (erro) => {
+      console.error('Erro ao carregar produtos: ', erro);
+      this.carregando.set(false);
+    }
+  });
+}
+constructor(private http: HttpClient){
+
+  // carregar a API
+  this.carregarProdutos();
+  //
   effect(()=>{
     console.log('Lista de produtos Alterados: ', this.produtos());
   });
